@@ -1,10 +1,10 @@
-![logo](https://github.com/Kudayasu/Artifice/assets/17820526/efac32c2-2290-495f-b405-e80ec0784763)
+![logo](https://github.com/Kudayasu/Artifice/assets/17820526/3cee6279-0619-4b2b-a73f-fce06aab2df0)
 
 # Artifice
 
 A custom tool designed to achieve privilege escalation autonomously for Xbox One Developer Mode.
 
-![tool](https://github.com/Kudayasu/Artifice/assets/17820526/45729a6c-6a12-49d0-b86d-380ca66f40e2)
+![tool](https://github.com/Kudayasu/Artifice/assets/17820526/45d3d2b8-1e91-4235-a518-b6348bb9e07a)
 
 ## Learn more about the project [here](https://kudayasu.github.io)
 
