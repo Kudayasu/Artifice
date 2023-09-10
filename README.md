@@ -24,7 +24,7 @@ A custom tool designed to achieve privilege escalation autonomously for Xbox One
 - **ComClassActivation**: C++ Universal project to supplement the main UWP app. Utilizes COM/WinRT to allow access to the `Microsoft.Xbox.Development` namespace.
 
 ## Building
-The main project that needs to be built is the `Universal` UWP app. After running the [Create App Packages](https://learn.microsoft.com/en-us/windows/msix/package/packaging-uwp-apps#create-an-app-package-using-the-packaging-wizard) command, copy the .msix from `XCopy\AppPackages\Universal_1.0.0.0_x64_Test\Universal_1.0.0.0_x64.msix` to the root **Scratch** folder `Artifice\Scratch` as `art.msix` and you're set.
+The main project that needs to be built is `Universal`. After running the [Create App Packages](https://learn.microsoft.com/en-us/windows/msix/package/packaging-uwp-apps#create-an-app-package-using-the-packaging-wizard) command, copy the .msix from `XCopy\AppPackages\Universal_1.0.0.0_x64_Test\Universal_1.0.0.0_x64.msix` to the root **Scratch** folder `Artifice\Scratch` as `art.msix` and you're set.
 
 It should be placed next to `acl.bat` `art.bat` `icacls.exe` `net1.exe`
 
