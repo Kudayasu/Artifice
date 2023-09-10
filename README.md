@@ -31,7 +31,7 @@ It should be placed next to `acl.bat` `art.bat` `icacls.exe` `net1.exe`
 ## Post-Build Action
 **XboxWDPDriver**: The default behavior after building is to copy the application's files `WindowsDevicePortalWrapper.dll` `XboxWdpDriver.exe` `XboxWdpDriver.exe.config` to the **Scratch\WDP** folder. You may change this in the project properties under `Build Events`.
 
-## FAQ
+## Q&A
 - **Q**: What's the purpose of the toggle?
 - **A**: If you don't want to use the default set credentials of `admin:admin` for the admin profile, you'll be prompted to enter your own.
 
