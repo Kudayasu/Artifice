@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsDevicePortalWrapper", "WindowsDevicePortalWrapper\WindowsDevicePortalWrapper.csproj", "{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WindowsDevicePortalWrapper.Shared", "WindowsDevicePortalWrapper.Shared\WindowsDevicePortalWrapper.Shared.shproj", "{AF72A46D-5D30-4FB4-8D3E-B516ED19F9A4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{07E3DB19-3DDB-42EF-BDAB-0A61F07D637C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XboxWdpDriver", "..\Samples\XboxWdpDriver\XboxWdpDriver.csproj", "{1F3CA46B-1E52-418E-A293-23F3FA3BD213}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM = Debug|ARM
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|ARM = Release|ARM
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|ARM.Build.0 = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|x64.Build.0 = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Debug|x86.Build.0 = Debug|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|ARM.ActiveCfg = Release|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|ARM.Build.0 = Release|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|x64.ActiveCfg = Release|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|x64.Build.0 = Release|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|x86.ActiveCfg = Release|Any CPU
+		{6A9E862E-5CDA-4A8A-BBC0-56E9EA921E39}.Release|x86.Build.0 = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|ARM.Build.0 = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|x64.Build.0 = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Debug|x86.Build.0 = Debug|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|ARM.ActiveCfg = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|ARM.Build.0 = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|x64.ActiveCfg = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|x64.Build.0 = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|x86.ActiveCfg = Release|Any CPU
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1F3CA46B-1E52-418E-A293-23F3FA3BD213} = {07E3DB19-3DDB-42EF-BDAB-0A61F07D637C}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		WindowsDevicePortalWrapper.Shared\WindowsDevicePortalWrapper.Shared.projitems*{6a9e862e-5cda-4a8a-bbc0-56e9ea921e39}*SharedItemsImports = 4
+		WindowsDevicePortalWrapper.Shared\WindowsDevicePortalWrapper.Shared.projitems*{af72a46d-5d30-4fb4-8d3e-b516ed19f9a4}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,140 @@
+﻿<hc:GlowWindow x:Class="Artifice.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:local="clr-namespace:Artifice"
+        mc:Ignorable="d"
+        UseLayoutRounding="True"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        Title="Artifice" Height="720" Width="1280" Background="#1c1c1c" FontFamily="Bahnschrift SemiBold" FontSize="12">
+
+    <hc:GlowWindow.Resources>
+        <Geometry x:Key="IconGeometry">M7.202 15.967a7.987 7.987 0 0 1-3.552-1.26c-.898-.585-1.101-.826-1.101-1.306 0-.965 1.062-2.656 2.879-4.583C6.459 7.723 7.897 6.44 8.052 6.475c.302.068 2.718 2.423 3.622 3.531 1.43 1.753 2.088 3.189 1.754 3.829-.254.486-1.83 1.437-2.987 1.802-.954.301-2.207.429-3.239.33Zm-5.866-3.57C.589 11.253.212 10.127.03 8.497c-.06-.539-.038-.846.137-1.95.218-1.377 1.002-2.97 1.945-3.95.401-.417.437-.427.926-.263.595.2 1.23.638 2.213 1.528l.574.519-.313.385C4.056 6.553 2.52 9.086 1.94 10.653c-.315.852-.442 1.707-.306 2.063.091.24.007.15-.3-.319Zm13.101.195c.074-.36-.019-1.02-.238-1.687-.473-1.443-2.055-4.128-3.508-5.953l-.457-.575.494-.454c.646-.593 1.095-.948 1.58-1.25.381-.237.927-.448 1.161-.448.145 0 .654.528 1.065 1.104a8.372 8.372 0 0 1 1.343 3.102c.153.728.166 2.286.024 3.012a9.495 9.495 0 0 1-.6 1.893c-.179.393-.624 1.156-.82 1.404-.1.128-.1.127-.043-.148ZM7.335 1.952c-.67-.34-1.704-.705-2.276-.803a4.171 4.171 0 0 0-.759-.043c-.471.024-.45 0 .306-.358A7.778 7.778 0 0 1 6.47.128c.8-.169 2.306-.17 3.094-.005.85.18 1.853.552 2.418.9l.168.103-.385-.02c-.766-.038-1.88.27-3.078.853-.361.176-.676.316-.699.312a12.246 12.246 0 0 1-.654-.319Z</Geometry>
+    </hc:GlowWindow.Resources>
+
+    <Grid Margin="32" Name="PanelMain">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <!-- Add new row here -->
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="75*"/>
+            <ColumnDefinition Width="1141*"/>
+        </Grid.ColumnDefinitions>
+        <hc:StepBar IsMouseSelectable="False" Grid.ColumnSpan="3" Grid.Row="0" Dock="Left" StepIndex="{Binding StepIndex}" Foreground="Black" Margin="-7,5,1067,38" Grid.RowSpan="2">
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 1" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="WDP/SMB Prep"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 2" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="Copy SSH Keys"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 3" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="Convert/Create Keys"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 4" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="UWP Deployment"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 5" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="Create SSH Folder"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 6" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="AuthKeys Drop"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 7" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="SSH Drop"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 8" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="SSH Cycle"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 9" FontSize="14"/>
+                <LineBreak/>
+                <Run Text="Invoke AKC"/>
+                </TextBlock>
+            </hc:StepBarItem>
+            <hc:StepBarItem Margin="0,10" FontWeight="Bold">
+                <TextBlock>
+                <Run Text="Step 10" FontSize="15"/>
+                <LineBreak/>
+                <Run Text="Complete"/>
+                </TextBlock>
+            </hc:StepBarItem>
+        </hc:StepBar>
+
+        <!-- Add RichTextBox control here -->
+        <RichTextBox x:Name = "MyRichTextBox"
+                 IsReadOnly="True"
+                 Grid.Column = "2"
+                 Background = "Black"
+                 Foreground = "LightGray"
+                 FontFamily = "Cascadia Mono, Consolas, Courier New, monospace"
+                 VerticalScrollBarVisibility = "Auto"
+                 Margin = "79,1,10,33" Grid.RowSpan="2"/>
+
+        <!-- Add Start/Stop/Switch buttons here -->
+        <StackPanel Orientation = "Horizontal"
+                Grid.Row = "1"
+                HorizontalAlignment = "Left" Margin="79,276,0,-35" Grid.Column="2">
+
+            <!-- Start button -->
+            <Button Click="StartButton_Click" 
+                Style="{StaticResource ButtonPrimary}" 
+                Content = "Start"
+                Margin = "0"
+                Padding = "10,5" Width="80"/>
+
+            <!-- Stop button -->
+            <Button Click="StopButton_Click" 
+                Style="{StaticResource ButtonPrimary}" 
+                Content = "Stop"
+                Margin = "2"
+                Padding = "10,5" Width="80"/>
+
+            <!-- Add Switch control here -->
+            <ToggleButton x:Name="CredSwitch" IsEnabled="True" IsChecked="False" Margin="5,4" Style="{StaticResource ToggleButtonSwitch.Small}" Width="35" Height="20"/>
+        </StackPanel>
+
+        <!-- Add AnimationPath control here -->
+        <Grid Grid.ColumnSpan="2" Margin="0,0,75,0">
+            <hc:AnimationPath x:Name="XSVGPath" VerticalAlignment="Bottom" HorizontalAlignment="Right" Duration="0:0:3" Stretch="Uniform" Width="25" Height="25" StrokeThickness="1" Stroke="White" Data="{StaticResource IconGeometry}" Margin="0,0,-1239,-340" />
+        </Grid>
+    </Grid>
+</hc:GlowWindow>
