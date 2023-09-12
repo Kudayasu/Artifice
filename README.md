@@ -35,8 +35,11 @@ It should be placed next to `acl.bat` `art.bat` `icacls.exe` `net1.exe`
 - **Q**: What's the purpose of the toggle?
 - **A**: If you don't want to use the default set credentials of `admin:admin` for the admin profile, you'll be prompted to enter your own.
 
+- **Q**: I went to add an additional user, and left the toggle off, but the log showed custom credentials. Why?
+- **A**: If you're using the uploaded zip under **Releases** and have set custom credentials before, but then decide to skip custom credentials on the next attempt, it will use the custom credentials from the previous run. These are set in `Artifice\Scratch\SSH\elevate.cmd` - watch out for this.
+
 - **Q**: I reached "Process Complete", but was unable to login. Why?
-- **A**: There are safeguards in place to prevent this from happening. However, if it does, restart your console and try again.
+- **A**: There are safeguards in place to prevent this from happening. However, if it does, restart your console and try again. 
 
 - **Q**: The log displays error (0x********) when launching the UWP app, what's happening?
 - **A**: Typically a result of corruption (i.e. exiting Artifice as the install step takes place), or having had the app already installed. In most cases, you should be able to uninstall it via DevHome, WDP, or My Games & Apps, and attempt the process again. If the same error occurs on the next attempt (i.e. [0x80270300](https://support.xbox.com/en-US/help/errors/error-code-0x80270300)) - you'll need to exit Developer Mode and ensure you keep the `Delete sideloaded games and apps` checkbox ticked. Optionally, you may also perform a factory reset (keep games and apps is fine).
