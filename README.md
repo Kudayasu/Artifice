@@ -37,7 +37,7 @@ If you get stuck on **Setting up SSH** ensure you set `Copy to Output Directory`
 
 ## Q&A
 - **Q**: What SKU does this work for?
-- **A**: Fundamentally, this should work for any generation. However, personal testing was done on an original Durango on the latest GA 10.0.25398.1762. Notably, there are anecdotal reports from Twitter of it working on a Slim, Xbox One X, and also in Skip Ahead. YMMV.
+- **A**: Fundamentally, this should work for any generation. However, personal testing was done on an original Durango on the latest GA [10.0.25398.1762](https://support.xbox.com/en-US/help/hardware-network/settings-updates/whats-new-xbox-one-system-updates). Notably, there are anecdotal reports from Twitter of it working on a Slim, Xbox One X, and also in Skip Ahead. YMMV.
 
 - **Q**: What's the purpose of the toggle?
 - **A**: If you don't want to use the default set credentials of `admin:admin` for the admin profile, you'll be prompted to enter your own.
