@@ -34,6 +34,9 @@ After you've built the project and copied over the msix, ensure you have also co
 **XboxWDPDriver**: The default behavior after building is to copy the application's files `WindowsDevicePortalWrapper.dll` `XboxWdpDriver.exe` `XboxWdpDriver.exe.config` to the **Scratch\WDP** folder. You may change this in the project properties under `Build Events`.
 
 ## Q&A
+- **Q**: What SKU does this work for?
+- **A**: Fundamentally, this should work for any generation. However, personal testing was done on an original Durango on the latest GA 10.0.25398.1762. Notably, there are anecdotal reports from Twitter of it working on a Slim, Xbox One X, and also in Skip Ahead. YMMV.
+
 - **Q**: What's the purpose of the toggle?
 - **A**: If you don't want to use the default set credentials of `admin:admin` for the admin profile, you'll be prompted to enter your own.
 
