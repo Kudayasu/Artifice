@@ -8,21 +8,17 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using static Artifice.Helpers;
 using Artifice.Controls.Dialogs;
 using System.IO;
 using Renci.SshNet;
 using Renci.SshNet.Security;
 using System.Diagnostics;
-using Microsoft.VisualBasic.Devices;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using PrimS.Telnet;
-using System.Text.RegularExpressions;
 using Renci.SshNet.Common;
 using System.Windows.Documents;
-using System.Windows.Controls.Primitives;
+using static Artifice.Helpers;
 
 namespace Artifice
 {
@@ -277,7 +273,7 @@ namespace Artifice
                 Debug.WriteLine(srcDir);
                 Debug.WriteLine(destDir);
 
-                string[] files = new string[] { "acl.bat", "art.bat", "icacls.exe", "net1.exe" };
+                string[] files = new string[] { "acl.bat", "acl2.bat", "allclean.bat", "art.bat", "icacls.exe", "net1.exe" };
 
                 foreach (string file in files)
                 {
@@ -341,7 +337,7 @@ namespace Artifice
                 Directory.CreateDirectory(destSSHDir);
 
                 string[] sshFiles = new string[] { "elevate.cmd", "sshd_config" };
-                string clean = @"del d:\developmentfiles\art.bat && rmdir d:\developmentfiles\artssh /S /Q";
+                string clean = @"del d:\developmentfiles\art.bat & rmdir d:\developmentfiles\artssh /S /Q & rmdir d:\temp /S /Q";
 
                 foreach (string sshFile in sshFiles)
                 {
@@ -447,6 +443,9 @@ namespace Artifice
             var username = ShareCredentials.Username;
             var password = ShareCredentials.Password;
 
+            SshClient sshClient = new SshClient(hostnameOrIp, username, password);
+            sshClient.Connect();
+
             var workingDirectory = Directory.GetCurrentDirectory();
             var xboxWdpDriverPath = Path.Combine(workingDirectory, "Scratch", "WDP", "XboxWDPDriver.exe");
             var pfn = "Artifice_1.0.0.0_x64__s9y1p3hwd5qda";
@@ -485,10 +484,117 @@ namespace Artifice
             else
             {
                 await _log.ErrorAsync($"{output}");
-            }
 
-            SshClient sshClient = new SshClient(hostnameOrIp, username, password);
-            sshClient.Connect();
+                string checkCommand =
+                    @"cmd.exe /c IF EXIST D:\DevelopmentFiles\WindowsApps\Artifice_1.0.0.0_x64__s9y1p3hwd5qda (echo true) ELSE (echo false)";
+
+                var checkResult = sshClient.RunCommand(checkCommand);
+
+                if (checkResult.Result.Contains("true"))
+                {
+                    sshClient.RunCommand(@"cmd /c d:\developmentfiles\allclean.bat");
+
+                    await _log.WarningAsync("Uninstalling app");
+
+                    string uninstallCommand = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:app /subop:uninstall /pfn:{pfn}";
+                    if (!string.IsNullOrEmpty(wdpUsername) && !string.IsNullOrEmpty(wdpPassword))
+                    {
+                        uninstallCommand += $" /user:{wdpUsername} /pwd:{wdpPassword}";
+                    }
+
+                    var processStartUninstall = new ProcessStartInfo("cmd", $"/c {uninstallCommand}")
+                    {
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    var uninstallProcess = Process.Start(processStartUninstall);
+                    var tcsUninstall = new TaskCompletionSource<bool>();
+
+                    uninstallProcess.Exited += (sender, e) =>
+                    {
+                        if (!tcsUninstall.Task.IsCompleted)
+                        {
+                            tcsUninstall.SetResult(true);
+                        }
+                    };
+
+                    uninstallProcess.EnableRaisingEvents = true;
+
+                    await tcsUninstall.Task;
+                    string outputUninstall = uninstallProcess.StandardOutput.ReadToEnd();
+
+                    if (outputUninstall.Contains("Application uninstalled."))
+                    {
+                        await _log.InformationAsync("Uninstalled app");
+                    }
+
+                    else
+                    {
+                        await _log.ErrorAsync($"{outputUninstall}");
+                        return;
+                    }
+
+                    MessageBoxResult result =
+                        HandyControl.Controls.MessageBox.Show("Restart Console?", "Restart", MessageBoxButton.YesNo);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        string rebootCommand = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:reboot";
+                        if (!string.IsNullOrEmpty(wdpUsername) && !string.IsNullOrEmpty(wdpPassword))
+                        {
+                            rebootCommand += $" /user:{wdpUsername} /pwd:{wdpPassword}";
+                        }
+
+                        var processStartRestart = new ProcessStartInfo("cmd", $"/c {rebootCommand}")
+                        {
+                            RedirectStandardOutput = true,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+
+                        var restart = Process.Start(processStartRestart);
+                        var tcsRestart = new TaskCompletionSource<bool>();
+
+                        restart.Exited += (sender, e) =>
+                        {
+                            if (!tcsRestart.Task.IsCompleted)
+                            {
+                                tcsRestart.SetResult(true);
+                            }
+                        };
+
+                        restart.EnableRaisingEvents = true;
+
+                        await tcsRestart.Task;
+                        string rebootOutput = restart.StandardOutput.ReadToEnd();
+
+                        if (rebootOutput.Contains("Rebooting device."))
+                        {
+                            await _log.InformationAsync("Initiated reboot of the console");
+                            await Task.Delay(3000);
+
+                            StepViewModel VM = ViewModel;
+                            VM.StepIndex = 0;
+                            MyRichTextBox.Document = new FlowDocument();
+
+                            await StepOne();
+                            return;
+                        }
+
+                        else
+                        {
+                            await _log.ErrorAsync($"{rebootOutput}");
+                            return;
+                        }
+                    }
+                }
+
+                sshClient.Disconnect();
+                sshClient.Dispose();
+                return;
+            }
 
             bool fileExists = false;
             while (!fileExists)
@@ -515,6 +621,8 @@ namespace Artifice
             var workingDirectory = Directory.GetCurrentDirectory();
             var authKeysPath = Path.Combine(workingDirectory, "Scratch", "AuthKeys");
             var xboxWdpDriverPath = Path.Combine(workingDirectory, "Scratch", "WDP", "XboxWDPDriver.exe");
+            var pfn = "Artifice_1.0.0.0_x64__s9y1p3hwd5qda";
+            var aumid = "Artifice_s9y1p3hwd5qda!App";
 
             string? wdpUsername = HasWdpCredentials ? WDPCredentials.WdpUsername : null;
             string? wdpPassword = HasWdpCredentials ? WDPCredentials.WdpPassword : null;
@@ -524,83 +632,83 @@ namespace Artifice
 
             await _log.InformationAsync("Preparing arbitrary write");
 
-            // LooseApps folder doesn't exist by default
-            // Otherwise, AuthKeys gets created as a normal folder
-            string checkCommand = 
-                @"cmd.exe /c IF EXIST D:\DevelopmentFiles\LooseApps\AuthKeys (echo true) ELSE (echo false)";
+            sshClient.RunCommand(@"cmd /c mkdir D:\DevelopmentFiles\SSH2");
+            await _log.InformationAsync("Created SSH2 directory");
 
-            var checkResult = sshClient.RunCommand(checkCommand);
+            string srcDir = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "AuthKeys");
+            string destDir = ShareCredentials.Path + "\\SSH2";
 
-            if (checkResult.Result.Contains("true"))
+            string[] files = Directory.GetFiles(srcDir);
+
+            foreach (string file in files)
             {
-                Debug.WriteLine("Directory already exists");
+                string fileName = Path.GetFileName(file);
+                string destPath = Path.Combine(destDir, fileName);
+                File.Copy(file, destPath, true);
             }
 
-            else
-            {
-                sshClient.RunCommand(@"cmd.exe /c mkdir D:\DevelopmentFiles\LooseApps");
+            await _log.InformationAsync("Successfully copied files");
 
-                string command =
-                    @"cmd.exe /c mklink /J D:\DevelopmentFiles\LooseApps\AuthKeys S:\Windows\System32\config\systemprofile\.ssh";
-                string success =
-                    @"Junction created for D:\DevelopmentFiles\LooseApps\AuthKeys <<===>> S:\Windows\System32\config\systemprofile\.ssh";
+            sshClient.RunCommand(@"cmd /c d:\developmentfiles\acl2.bat");
+            sshClient.RunCommand(@"cmd /c echo. > d:\SSH2.txt");
 
-                var result = sshClient.RunCommand(command);
+            await _log.InformationAsync("Relaunching app");
+            string launchCommand = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:app /subop:launch /pfn:{pfn} /aumid:{aumid}";
 
-                if (result.Result.Contains(success))
-                {
-                    await _log.InformationAsync("Created junction");
-                }
-
-                else
-                {
-                    await _log.ErrorAsync($"{result.Result}");
-                    await _log.ErrorAsync($"Failed to create junction");
-                    sshClient.RunCommand(@"cmd /c rmdir D:\DevelopmentFiles\LooseApps\AuthKeys /s /q");
-                    return;
-                }
-            }
-
-            await _log.InformationAsync("Starting arbitrary write");
-
-            // Route deployment through WDP
-            string command2 = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:install /folder:{authKeysPath} /transfer:HTTP";
             if (!string.IsNullOrEmpty(wdpUsername) && !string.IsNullOrEmpty(wdpPassword))
             {
-                command2 += $" /user:{wdpUsername} /pwd:{wdpPassword}";
+                launchCommand += $" /user:{wdpUsername} /pwd:{wdpPassword}";
             }
 
-            var processStartInfo = new ProcessStartInfo("cmd", $"/c {command2}")
+            var processStartFallback = new ProcessStartInfo("cmd", $"/c {launchCommand}")
             {
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
 
-            var process = Process.Start(processStartInfo);
-            var tcs = new TaskCompletionSource<bool>();
+            var fallbackProcess = Process.Start(processStartFallback);
+            var tcsFallBack = new TaskCompletionSource<bool>();
 
-            process.Exited += (sender, e) => tcs.SetResult(true);
-            process.EnableRaisingEvents = true;
-
-            await tcs.Task;
-            string output = process.StandardOutput.ReadToEnd();
-
-            // 0x800701C0 --> untrusted mount point
-            if (output.Contains("Exception encountered: OK, hr = 0x800701C0"))
+            fallbackProcess.Exited += (sender, e) =>
             {
-                await _log.InformationAsync("Executed arbitrary write");
+                if (!tcsFallBack.Task.IsCompleted)
+                {
+                    tcsFallBack.SetResult(true);
+                }
+            };
+
+            fallbackProcess.EnableRaisingEvents = true;
+
+            await tcsFallBack.Task;
+            string outputFallback = fallbackProcess.StandardOutput.ReadToEnd();
+
+            bool isSuccessful = false;
+
+            if (outputFallback.Contains("Application launched."))
+            {
+                string checkFallbackSuccess = @"cmd.exe /c IF EXIST D:\SSH2Success.txt (echo true) ELSE (echo false)";
+                var checkSuccessResult = sshClient.RunCommand(checkFallbackSuccess);
+
+                if (checkSuccessResult.Result.Contains("true"))
+                {
+                    await _log.InformationAsync("Executed arbitrary write");
+                    isSuccessful = true;
+                }
             }
 
             else
             {
-                await _log.ErrorAsync($"{output}");
+                await _log.ErrorAsync($"{outputFallback}");
+            }
+
+            if (!isSuccessful)
+            {
                 return;
             }
 
             await _log.InformationAsync("Completed arbitrary write");
 
-            sshClient.RunCommand(@"cmd /c rmdir D:\DevelopmentFiles\LooseApps\AuthKeys");
             sshClient.Disconnect();
             sshClient.Dispose();
 
@@ -676,12 +784,13 @@ namespace Artifice
                 }
 
                 // Quick cleanup before we uninstall
-                string command = @"cmd /c del d:\success.txt && del d:\sshReady.txt && rmdir d:\developmentfiles\ssh /s /q";
-                sshClient.RunCommand(command);
+                await _log.InformationAsync("Performing cleanup");
+                sshClient.RunCommand(@"cmd /c d:\developmentfiles\allclean.bat");
+                sshClient.RunCommand(@"cmd /c del d:\developmentfiles\allclean.bat");
                 sshClient.Disconnect();
 
                 // Both recursiveCopy operations are complete, uninstall the app
-                string command2 = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:app /subop:uninstall /pfn:{pfn}";
+                string command2 = $"{ xboxWdpDriverPath} /x:{hostnameOrIp} /op:app /subop:uninstall /pfn:{pfn}";
                 if (!string.IsNullOrEmpty(wdpUsername) && !string.IsNullOrEmpty(wdpPassword))
                 {
                     command2 += $" /user:{wdpUsername} /pwd:{wdpPassword}";
@@ -803,6 +912,7 @@ namespace Artifice
                 }
 
                 await _log.InformationAsync("Cycled SSH");
+
                 telnetClient.Dispose();
 
                 StepViewModel viewModel = ViewModel;

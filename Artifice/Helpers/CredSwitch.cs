@@ -32,6 +32,12 @@ namespace Artifice
                     await UpdateCmdFileAsync(username, password);
                 }
             }
+
+            else
+            {
+                // If the toggle button is not checked, revert to default credentials
+                await UpdateCmdFileAsync("admin", "admin");
+            }
         }
 
         public async Task UpdateCmdFileAsync(string newUsername, string newPassword)

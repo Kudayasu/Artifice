@@ -16,25 +16,39 @@ namespace recursive_copy
         private void RecursiveCopy()
         {
             var xbox = new comclassactivation.Xbox();
+
             var tempDirectory = "D:\\Temp";
             var successFilePath = "D:\\success.txt";
+
+            var ssh2File = "D:\\SSH2.txt";
+            var ssh2Folder = "D:\\DevelopmentFiles\\SSH2";
+            var ssh2Success = "D:\\SSH2Success.txt";
+
             var sshSrcPath = "D:\\DevelopmentFiles\\SSH";
             var sshDestPath = "T:\\ProgramData\\ssh";
             var successSSHPath = "D:\\sshReady.txt";
 
+            // Step 5
+            // First Launch
             if (!Directory.Exists(tempDirectory))
             {
                 Directory.CreateDirectory(tempDirectory);
-            }
-
-            if (!File.Exists(successFilePath))
-            {
                 using (File.Create(Path.Combine(tempDirectory, "test.txt"))) { }
                 xbox.RecursiveCopyDirectory(tempDirectory, "S:\\Windows\\System32\\config\\systemprofile\\.ssh");
                 File.WriteAllText(successFilePath, "Directory creation successful");
             }
 
-            else
+            // Step 6
+            // Second Launch
+            if (File.Exists(ssh2File))
+            {
+                xbox.RecursiveCopyDirectory(ssh2Folder, "S:\\Windows\\System32\\config\\systemprofile\\.ssh");
+                File.WriteAllText(ssh2Success, "Directory copy successful");
+            }
+
+            // Step 7
+            // Third Launch
+            if (File.Exists(ssh2Success))
             {
                 xbox.RecursiveCopyDirectory(sshSrcPath, sshDestPath);
                 File.WriteAllText(successSSHPath, "Directory copy successful");
