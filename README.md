@@ -7,6 +7,7 @@ A custom tool designed to achieve privilege escalation autonomously for Xbox One
 ![tool](https://github.com/Kudayasu/Artifice/assets/17820526/45d3d2b8-1e91-4235-a518-b6348bb9e07a)
 
 ## Learn more about the project [here](https://kudayasu.github.io/an-autopsy-of-artifice)
+## Anything else Xbox related, check out the [wiki](https://xboxresearch.com/wiki)
 
 ## Project Composition
 ### Artifice (Project)
