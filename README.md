@@ -30,6 +30,8 @@ It should be placed next to `acl.bat` `art.bat` `icacls.exe` `net1.exe`
 
 After you've built the project and copied over the msix, ensure you have also copied the `Dependencies` folder to your Scratch root.
 
+If you get stuck on **Setting up SSH** ensure you set `Copy to Output Directory` to `Copy Always` for every item within your `Dependencies` folder and your `Scratch` folder.
+
 ## Post-Build Action
 **XboxWDPDriver**: The default behavior after building is to copy the application's files `WindowsDevicePortalWrapper.dll` `XboxWdpDriver.exe` `XboxWdpDriver.exe.config` to the **Scratch\WDP** folder. You may change this in the project properties under `Build Events`.
 
