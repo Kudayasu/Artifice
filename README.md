@@ -4,7 +4,7 @@
 
 A custom tool designed to achieve privilege escalation autonomously for Xbox One Developer Mode.
 
-![tool](https://github.com/Kudayasu/Artifice/assets/17820526/45d3d2b8-1e91-4235-a518-b6348bb9e07a)
+![tool](https://github.com/Kudayasu/Artifice/assets/17820526/2c33722c-7d6b-496a-a155-268a8836dc48)
 
 ## Learn more about the project [here](https://kudayasu.github.io/an-autopsy-of-artifice)
 ## Anything else Xbox related, check out the [wiki](https://xboxresearch.com/wiki)
@@ -27,9 +27,9 @@ A custom tool designed to achieve privilege escalation autonomously for Xbox One
 ## Building
 The main project that needs to be built is `Universal`. After running the [Create App Packages](https://learn.microsoft.com/en-us/windows/msix/package/packaging-uwp-apps#create-an-app-package-using-the-packaging-wizard) command, copy the .msix from `XCopy\AppPackages\Universal_1.0.0.0_x64_Test\Universal_1.0.0.0_x64.msix` to the root **Scratch** folder `Artifice\Scratch` as `art.msix` and you're set.
 
-It should be placed next to `acl.bat` `art.bat` `icacls.exe` `net1.exe`
+It should be placed next to `icacls.exe` `net1.exe`
 
-After you've built the project and copied over the msix, ensure you have also copied the `Dependencies` folder to your Scratch root.
+After you've built the project and copied over the msix, ensure you've also copied the `x64` dependencies to your `Dependencies` folder in the Scratch root.
 
 If you get stuck on **Setting up SSH** ensure you set `Copy to Output Directory` to `Copy Always` for every item within your `Dependencies` folder and your `Scratch` folder.
 
@@ -38,10 +38,10 @@ If you get stuck on **Setting up SSH** ensure you set `Copy to Output Directory`
 
 ## Q&A
 - **Q**: What SKU does this work for?
-- **A**: Fundamentally, this should work for any generation. However, personal testing was done on an original Durango on the latest GA [10.0.25398.1762](https://support.xbox.com/en-US/help/hardware-network/settings-updates/whats-new-xbox-one-system-updates). Notably, there are anecdotal reports from Twitter of it working on a Slim, Xbox One X, and also in Skip Ahead. YMMV.
+- **A**: Fundamentally, this should work for any generation. Personal testing was done on an original Durango on the latest GA [10.0.25398.2258](https://support.xbox.com/en-US/help/hardware-network/settings-updates/whats-new-xbox-one-system-updates) `Durango 25398.2258.amd64fre.xb_flt_2309zn.230918-2000 GitEnlistment(ba01) Green wave4langs`
 
-- **Q**: What's the purpose of the toggle?
-- **A**: If you don't want to use the default set credentials of `admin:admin` for the admin profile, you'll be prompted to enter your own.
+- **Q**: What's the purpose of the toggles?
+- **A**: The first toggle allows you to choose custom credentials. By default it's set to `admin:admin` for the account. The second toggle is for disabling various telemetry services via the `veil.bat` batch file. 
 
 - **Q**: I reached "Process Complete", but was unable to login. Why?
 - **A**: There are safeguards in place to prevent this from happening. However, if it does, restart your console and try again. 

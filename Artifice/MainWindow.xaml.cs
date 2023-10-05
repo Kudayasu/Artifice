@@ -117,7 +117,7 @@ namespace Artifice
             var baseAddress = $"https://{hostnameOrIpAddress}:11443";
             var endpoint = "/ext/smb/developerfolder";
 
-            // Create an instance of the HttpClient class with a custom HttpClientHandler
+            // Create an instance of HttpClient with a custom handler
             // WDP's cert-chain gets caught out, so we'll bypass normal validation
             // Disallow AutoRedirect to catch the 307
             var handler = new HttpClientHandler();
@@ -199,182 +199,6 @@ namespace Artifice
 
         public async Task StepTwo()
         {
-            var host = ShareCredentials.HostnameOrIpAddress;
-            SshClient ssh = new SshClient(host, ShareCredentials.Username, ShareCredentials.Password);
-            await _log.InformationAsync("Setting up SSH");
-
-            ssh.Connect();
-
-            // No longer needed (changes to appxmanifest)
-            // Keeping for posterity sake
-
-            // await SignInUser(ssh);
-
-            await TransferFiles(ssh);
-
-            await RunBatch(ssh);
-
-            await CopySSHFiles();
-
-            await DropSSHFiles(ssh);
-
-            // Disconnect from the remote share
-            ssh.Disconnect();
-            ssh.Dispose();
-
-            await _log.InformationAsync($"Copied SSH files");
-
-            // Access the view model
-            StepViewModel vm = ViewModel;
-
-            // Call the NextStep method
-            vm.NextStep();
-
-            await StepThree();
-
-            async Task SignInUser(SshClient ssh)
-            {
-                await _log.InformationAsync("Checking available users");
-
-                var result = ssh.RunCommand(@"J:\tools\wduser.exe list");
-                var lines = result.Result.Split('\n');
-                var anyUserSignedIn = lines.Any(line => line.Contains("Signed in: Yes"));
-
-                if (!anyUserSignedIn)
-                {
-                    var firstUserLine = lines.First(line => line.Contains("UserId: "));
-                    var firstUserEmailLine = lines[Array.IndexOf(lines, firstUserLine) + 1];
-                    var firstUserEmail = firstUserEmailLine.Split(' ').Last();
-
-                    var signInResult = ssh.RunCommand($"wduser signin {firstUserEmail}");
-
-                    if (signInResult.Result.Trim() == "User signed in.")
-                    {
-                        // Additional trim to remove the newline that comes after
-                        firstUserEmail = firstUserEmail.Trim();
-                        await _log.InformationAsync($"Signed in: {firstUserEmail}");
-                    }
-
-                    else
-                    {
-                        await _log.ErrorAsync($"Unable to sign in");
-                        await _log.WarningAsync($"Please perform a manual sign in, then try again");
-                        await _log.WarningAsync($"If you're unable to manually sign in, remove/re-add your profile");
-                        return;
-                    }
-                }
-            }
-
-            async Task TransferFiles(SshClient ssh)
-            {
-                string srcDir = Path.Combine(Directory.GetCurrentDirectory(), "Scratch");
-                string destDir = ShareCredentials.Path;
-
-                Debug.WriteLine(srcDir);
-                Debug.WriteLine(destDir);
-
-                string[] files = new string[] { "acl.bat", "acl2.bat", "allclean.bat", "art.bat", "icacls.exe", "net1.exe" };
-
-                foreach (string file in files)
-                {
-                    string srcPath = Path.Combine(srcDir, file);
-                    string destPath = Path.Combine(destDir, file);
-
-                    File.Copy(srcPath, destPath, true);
-                }
-
-                string srcFolder = Path.Combine(srcDir, "en-us");
-                string destFolder = Path.Combine(destDir, "en-us");
-
-                if (Directory.Exists(destFolder))
-                {
-                    Directory.Delete(destFolder, true);
-                }
-
-                Directory.CreateDirectory(destFolder);
-
-                string fileName = "ICacls.exe.mui";
-
-                string srcFilePath = Path.Combine(srcFolder, fileName);
-                string destFilePath = Path.Combine(destFolder, fileName);
-
-                File.Copy(srcFilePath, destFilePath, true);
-            }
-
-            async Task RunBatch(SshClient ssh)
-            {
-                string batch = @"d:\developmentfiles\art.bat";
-                ssh.RunCommand(batch);
-                await _log.InformationAsync($"Executed xbdiag batch");
-            }
-
-            async Task CopySSHFiles()
-            {
-                string srcDir = Path.Combine(ShareCredentials.Path, "artssh");
-                string destDir = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "SSHDump");
-
-                Directory.CreateDirectory(destDir);
-                string[] sshFiles = Directory.GetFiles(srcDir, "ssh*");
-
-                foreach (string sshFile in sshFiles)
-                {
-                    string fileName = Path.GetFileName(sshFile);
-                    string destPath = Path.Combine(destDir, fileName);
-                    File.Copy(sshFile, destPath, true);
-                }
-            }
-
-            async Task DropSSHFiles(SshClient ssh)
-            {
-                string srcSSHDir = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "SSH");
-                string destSSHDir = Path.Combine(ShareCredentials.Path, "SSH");
-
-                if (Directory.Exists(destSSHDir))
-                {
-                    Directory.Delete(destSSHDir, true);
-                }
-
-                Directory.CreateDirectory(destSSHDir);
-
-                string[] sshFiles = new string[] { "elevate.cmd", "sshd_config" };
-                string clean = @"del d:\developmentfiles\art.bat & rmdir d:\developmentfiles\artssh /S /Q & rmdir d:\temp /S /Q";
-
-                foreach (string sshFile in sshFiles)
-                {
-                    string srcPath = Path.Combine(srcSSHDir, sshFile);
-                    string destPath = Path.Combine(destSSHDir, sshFile);
-                    File.Copy(srcPath, destPath, true);
-                }
-
-                ssh.RunCommand(clean);
-            }
-        }
-
-        public async Task StepThree()
-        {
-            string destinationPath = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "SSHDump", "ssh_host_ed25519_key");
-
-            // Load the private key
-            PrivateKeyFile privateKeyFile = new PrivateKeyFile(destinationPath);
-            KeyHostAlgorithm privateKey = (KeyHostAlgorithm)privateKeyFile.HostKey;
-
-            // Get the public key data from the private key
-            byte[] publicKeyData = privateKey.Data;
-            string publicKeyBase64 = Convert.ToBase64String(publicKeyData);
-            string authorizedKeysEntry = $"ssh-ed25519 {publicKeyBase64} system@artifice";
-
-            // Save the authorized_keys file
-            File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "AuthKeys", "authorized_keys"), authorizedKeysEntry);
-            await _log.InformationAsync($"Created public key");
-            await _log.InformationAsync($"Preparing app installation");
-
-            StepViewModel viewModel = ViewModel;
-            viewModel.NextStep();
-            await StepFour();
-        }
-
-        public async Task StepFour()
-        {
             var hostnameOrIp = ShareCredentials.HostnameOrIpAddress;
 
             var workingDirectory = Directory.GetCurrentDirectory();
@@ -382,7 +206,7 @@ namespace Artifice
             var MsixPath = Path.Combine(workingDirectory, "Scratch", "art.msix");
             var dependenciesPath = Path.Combine(workingDirectory, "Scratch", "dependencies");
 
-            string installCommand = 
+            string installCommand =
                 $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:install /appx:{MsixPath}";
 
             string? wdpUsername = HasWdpCredentials ? WDPCredentials.WdpUsername : null;
@@ -432,6 +256,313 @@ namespace Artifice
             }
 
             XSVGPath.Visibility = Visibility.Hidden;
+
+            StepViewModel viewModel = ViewModel;
+            viewModel.NextStep();
+            await StepThree();
+        }
+
+        public async Task StepThree()
+        {
+            var host = ShareCredentials.HostnameOrIpAddress;
+            SshClient ssh = new SshClient(host, ShareCredentials.Username, ShareCredentials.Password);
+            await _log.InformationAsync("Setting up SSH");
+
+            ssh.Connect();
+
+            await TransferFiles(ssh);
+            await LaunchApp();
+            await StartTelnet(ssh);
+            await CopySSHFiles();
+            await DropSSHFiles(ssh);
+
+            ssh.Disconnect();
+            ssh.Dispose();
+
+            StepViewModel vm = ViewModel;
+            vm.NextStep();
+
+            await StepFour();
+
+            async Task TransferFiles(SshClient ssh)
+            {
+                string srcDir = Path.Combine(Directory.GetCurrentDirectory(), "Scratch");
+                string destDir = ShareCredentials.Path;
+
+                string[] batchFiles = ["acl.bat", "acl2.bat", "allclean.bat", "veil.bat"];
+                string[] rootFiles = ["icacls.exe", "net1.exe"];
+
+                foreach (string file in batchFiles)
+                {
+                    string srcPath = Path.Combine(srcDir, "Batch", file);
+                    string destPath = Path.Combine(destDir, file);
+
+                    File.Copy(srcPath, destPath, true);
+                }
+
+                foreach (string file in rootFiles)
+                {
+                    string srcPath = Path.Combine(srcDir, file);
+                    string destPath = Path.Combine(destDir, file);
+
+                    File.Copy(srcPath, destPath, true);
+                }
+
+                string srcFolder = Path.Combine(srcDir, "en-us");
+                string destFolder = Path.Combine(destDir, "en-us");
+
+                if (Directory.Exists(destFolder))
+                {
+                    Directory.Delete(destFolder, true);
+                }
+
+                Directory.CreateDirectory(destFolder);
+
+                string fileName = "ICacls.exe.mui";
+
+                string srcFilePath = Path.Combine(srcFolder, fileName);
+                string destFilePath = Path.Combine(destFolder, fileName);
+
+                File.Copy(srcFilePath, destFilePath, true);
+            }
+
+            async Task LaunchApp()
+            {
+                var hostnameOrIp = ShareCredentials.HostnameOrIpAddress;
+                var username = ShareCredentials.Username;
+                var password = ShareCredentials.Password;
+
+                SshClient sshClient = new SshClient(hostnameOrIp, username, password);
+                sshClient.Connect();
+                sshClient.RunCommand(@"cmd /c echo. > d:\SSH1.txt");
+
+                var workingDirectory = Directory.GetCurrentDirectory();
+                var xboxWdpDriverPath = Path.Combine(workingDirectory, "Scratch", "WDP", "XboxWDPDriver.exe");
+                var pfn = "Artifice_1.0.0.0_x64__s9y1p3hwd5qda";
+                var aumid = "Artifice_s9y1p3hwd5qda!App";
+
+                string? wdpUsername = HasWdpCredentials ? WDPCredentials.WdpUsername : null;
+                string? wdpPassword = HasWdpCredentials ? WDPCredentials.WdpPassword : null;
+
+                string command = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:app /subop:launch /pfn:{pfn} /aumid:{aumid}";
+                if (!string.IsNullOrEmpty(wdpUsername) && !string.IsNullOrEmpty(wdpPassword))
+                {
+                    command += $" /user:{wdpUsername} /pwd:{wdpPassword}";
+                }
+
+                var processStartInfo = new ProcessStartInfo("cmd", $"/c {command}")
+                {
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                var process = Process.Start(processStartInfo);
+                var tcs = new TaskCompletionSource<bool>();
+
+                process.Exited += (sender, e) => tcs.SetResult(true);
+                process.EnableRaisingEvents = true;
+
+                await tcs.Task;
+                string output = process.StandardOutput.ReadToEnd();
+
+                if (output.Contains("Application launched."))
+                {
+                    await _log.InformationAsync("Launched app");
+                }
+
+                else
+                {
+                    await _log.ErrorAsync($"{output}");
+
+                    string checkCommand =
+                        @"cmd.exe /c IF EXIST D:\DevelopmentFiles\WindowsApps\Artifice_1.0.0.0_x64__s9y1p3hwd5qda (echo true) ELSE (echo false)";
+
+                    var checkResult = sshClient.RunCommand(checkCommand);
+
+                    if (checkResult.Result.Contains("true"))
+                    {
+                        sshClient.RunCommand(@"cmd /c d:\developmentfiles\allclean.bat");
+
+                        await _log.WarningAsync("Uninstalling app");
+
+                        string uninstallCommand = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:app /subop:uninstall /pfn:{pfn}";
+                        if (!string.IsNullOrEmpty(wdpUsername) && !string.IsNullOrEmpty(wdpPassword))
+                        {
+                            uninstallCommand += $" /user:{wdpUsername} /pwd:{wdpPassword}";
+                        }
+
+                        var processStartUninstall = new ProcessStartInfo("cmd", $"/c {uninstallCommand}")
+                        {
+                            RedirectStandardOutput = true,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+
+                        var uninstallProcess = Process.Start(processStartUninstall);
+                        var tcsUninstall = new TaskCompletionSource<bool>();
+
+                        uninstallProcess.Exited += (sender, e) =>
+                        {
+                            if (!tcsUninstall.Task.IsCompleted)
+                            {
+                                tcsUninstall.SetResult(true);
+                            }
+                        };
+
+                        uninstallProcess.EnableRaisingEvents = true;
+
+                        await tcsUninstall.Task;
+                        string outputUninstall = uninstallProcess.StandardOutput.ReadToEnd();
+
+                        if (outputUninstall.Contains("Application uninstalled."))
+                        {
+                            await _log.InformationAsync("Uninstalled app");
+                        }
+
+                        else
+                        {
+                            await _log.ErrorAsync($"{outputUninstall}");
+                            return;
+                        }
+
+                        MessageBoxResult result =
+                            HandyControl.Controls.MessageBox.Show("Restart Console?", "Restart", MessageBoxButton.YesNo);
+
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            string rebootCommand = $"{xboxWdpDriverPath} /x:{hostnameOrIp} /op:reboot";
+                            if (!string.IsNullOrEmpty(wdpUsername) && !string.IsNullOrEmpty(wdpPassword))
+                            {
+                                rebootCommand += $" /user:{wdpUsername} /pwd:{wdpPassword}";
+                            }
+
+                            var processStartRestart = new ProcessStartInfo("cmd", $"/c {rebootCommand}")
+                            {
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true
+                            };
+
+                            var restart = Process.Start(processStartRestart);
+                            var tcsRestart = new TaskCompletionSource<bool>();
+
+                            restart.Exited += (sender, e) =>
+                            {
+                                if (!tcsRestart.Task.IsCompleted)
+                                {
+                                    tcsRestart.SetResult(true);
+                                }
+                            };
+
+                            restart.EnableRaisingEvents = true;
+
+                            await tcsRestart.Task;
+                            string rebootOutput = restart.StandardOutput.ReadToEnd();
+
+                            if (rebootOutput.Contains("Rebooting device."))
+                            {
+                                await _log.InformationAsync("Initiated reboot of the console");
+                                await Task.Delay(3000);
+
+                                StepViewModel VM = ViewModel;
+                                VM.StepIndex = 0;
+                                MyRichTextBox.Document = new FlowDocument();
+
+                                await StepOne();
+                                return;
+                            }
+
+                            else
+                            {
+                                await _log.ErrorAsync($"{rebootOutput}");
+                                return;
+                            }
+                        }
+                    }
+
+                    sshClient.Disconnect();
+                    sshClient.Dispose();
+                    return;
+                }
+
+                sshClient.Disconnect();
+            }
+
+            async Task StartTelnet(SshClient ssh)
+            {
+                ssh.RunCommand(@"devtoolslauncher LaunchForProfiling telnetd ""cmd.exe 24""");
+                await _log.InformationAsync($"Telnet session created");
+            }
+
+            async Task CopySSHFiles()
+            {
+                string srcDir = Path.Combine(ShareCredentials.Path, "artssh");
+                string destDir = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "SSHDump");
+
+                Directory.CreateDirectory(destDir);
+                string[] sshFiles = Directory.GetFiles(srcDir, "ssh*");
+
+                foreach (string sshFile in sshFiles)
+                {
+                    string fileName = Path.GetFileName(sshFile);
+                    string destPath = Path.Combine(destDir, fileName);
+                    File.Copy(sshFile, destPath, true);
+                }
+
+                await _log.InformationAsync($"Copied SSH files");
+            }
+
+            async Task DropSSHFiles(SshClient ssh)
+            {
+                string srcSSHDir = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "SSH");
+                string destSSHDir = Path.Combine(ShareCredentials.Path, "SSH");
+
+                if (Directory.Exists(destSSHDir))
+                {
+                    Directory.Delete(destSSHDir, true);
+                }
+
+                Directory.CreateDirectory(destSSHDir);
+
+                string[] sshFiles = ["elevate.cmd", "sshd_config"];
+                string clean = @"rmdir /S /Q d:\developmentfiles\artssh & rmdir /S /Q d:\temp";
+
+                foreach (string sshFile in sshFiles)
+                {
+                    string srcPath = Path.Combine(srcSSHDir, sshFile);
+                    string destPath = Path.Combine(destSSHDir, sshFile);
+                    File.Copy(srcPath, destPath, true);
+                }
+
+                await _log.InformationAsync("Dropped SSH files");
+                ssh.RunCommand(clean);
+            }
+        }
+
+        public async Task StepFour()
+        {
+            string destinationPath = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "SSHDump", "ssh_host_ed25519_key");
+
+            // Load the private key
+            PrivateKeyFile privateKeyFile = new PrivateKeyFile(destinationPath);
+            KeyHostAlgorithm privateKey = (KeyHostAlgorithm)privateKeyFile.HostKey;
+
+            // Get the public key data from the private key
+            byte[] publicKeyData = privateKey.Data;
+            string publicKeyBase64 = Convert.ToBase64String(publicKeyData);
+            string authorizedKeysEntry = $"ssh-ed25519 {publicKeyBase64} system@artifice";
+            string authKeysPath = Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "AuthKeys");
+
+            // Save the authorized_keys file
+            if (!Directory.Exists(authKeysPath))
+            {
+                Directory.CreateDirectory(authKeysPath);
+            }
+
+            File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "Scratch", "AuthKeys", "authorized_keys"), authorizedKeysEntry);
+            await _log.InformationAsync($"Created public key");
+
             StepViewModel viewModel = ViewModel;
             viewModel.NextStep();
             await StepFive();
@@ -785,6 +916,7 @@ namespace Artifice
 
                 // Quick cleanup before we uninstall
                 await _log.InformationAsync("Performing cleanup");
+
                 sshClient.RunCommand(@"cmd /c d:\developmentfiles\allclean.bat");
                 sshClient.RunCommand(@"cmd /c del d:\developmentfiles\allclean.bat");
                 sshClient.Disconnect();
@@ -857,7 +989,7 @@ namespace Artifice
                     {
                         // Be aware of case-sensitivity here for proc names
                         string processName = "";
-                        if (line.Contains("svchost.exe") && line.Contains("SshdBroker")) processName = "SshdBroker";
+                        if (line.Contains("svchost.exe") && line.Contains("SshdBroker")) processName = "svchost.exe";
                         else if (line.Contains("sshd.exe")) processName = "sshd.exe";
 
                         if (!string.IsNullOrEmpty(processName))
@@ -1094,8 +1226,15 @@ namespace Artifice
                     using (var client = new SshClient(hostnameOrIp, elevateUser, elevatePass))
                     {
                         client.Connect();
-                        await _log.InformationAsync($"Credentials validated");
+
+                        if (VeilSwitch.IsChecked == true)
+                        {
+                            client.RunCommand(@"cmd /c D:\DevelopmentFiles\veil.bat");
+                            client.RunCommand(@"cmd /c del D:\DevelopmentFiles\veil.bat");
+                        }
+
                         client.Disconnect();
+                        await _log.InformationAsync($"Credentials validated");
                     }
                 }
 
