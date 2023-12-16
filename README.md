@@ -38,7 +38,7 @@ If you get stuck on **Setting up SSH** ensure you set `Copy to Output Directory`
 
 ## Q&A
 - **Q**: What SKU does this work for?
-- **A**: Fundamentally, this should work for any generation. Personal testing was done on an original Durango on the latest GA [10.0.25398.2917](https://support.xbox.com/en-US/help/hardware-network/settings-updates/whats-new-xbox-one-system-updates) `Durango 25398.2917.amd64fre.xb_flt_2311zn.231115-1800 GitEnlistment(ba01) Green wave4langs`
+- **A**: Fundamentally, this should work for any generation. Personal testing was done on an original Durango on the latest GA [10.0.25398.2921](https://support.xbox.com/en-US/help/hardware-network/settings-updates/whats-new-xbox-one-system-updates) `Durango 25398.2921.amd64fre.xb_flt_2311zn.231211-1920 GitEnlistment(ba01) Green wave4langs`
 
 - **Q**: What's the purpose of the toggles?
 - **A**: The first toggle allows you to choose custom credentials. By default it's set to `admin:admin` for the account. The second toggle is for disabling various telemetry services via the `veil.bat` batch file. 
