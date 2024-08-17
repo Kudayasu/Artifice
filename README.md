@@ -4,7 +4,7 @@
 
 A custom tool designed to achieve privilege escalation autonomously for Xbox One Developer Mode.
 
-![tool](https://github.com/user-attachments/assets/fcd84514-536f-45b2-892b-6698cd515668)
+![tool](https://github.com/user-attachments/assets/b882ff1b-d43d-4e0d-b6a5-0613e2a23f04)
 
 Learn more about the project [here](https://kudayasu.github.io/an-autopsy-of-artifice)\
 Anything else Xbox related, check out the [wiki](https://xboxoneresearch.github.io/wiki)
