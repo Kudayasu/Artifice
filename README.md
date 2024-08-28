@@ -38,10 +38,16 @@ If you get stuck on **Setting up SSH** ensure you set `Copy to Output Directory`
 
 ## Q&A
 - **Q**: What SKU does this work for?
-- **A**: Fundamentally, this should work for any generation. Personal testing was done on an original Durango on the latest GA [10.0.25398.4911](https://support.xbox.com/en-US/help/hardware-network/settings-updates/whats-new-xbox-one-system-updates) `Durango 25398.4911.amd64fre.xb_flt_2406zn.240805-1410 GitEnlistment(ba01) Green wave4langs`
+- **A**: Up to **10.0.25398.4911** on any SKU with an OS version that has the respective PRs [478](https://github.com/PowerShell/openssh-portable/pull/478)+[479](https://github.com/PowerShell/openssh-portable/pull/479) integrated into OpenSSH. Otherwise, this is now patched on the latest GA [10.0.26100.1968](https://support.xbox.com/en-US/help/hardware-network/settings-updates/whats-new-xbox-one-system-updates) `Durango 26100.1968.amd64fre.xb_flt_2408ge.240821-1830 GitEnlistment(ba01) Green wave4langs`
 
-- **Q**: What if I'm on an insider build where it's patched?
-- **A**: Take a look at [AppxPotato](https://github.com/Kudayasu/AppxPotato). Of course as always with different builds/skus, YMMV.
+- **Q**: Is there still an easy way to escalate privs?
+- **A**: [VSProfilingAccount](https://xboxoneresearch.github.io/wiki/exploits/devmode-priv-escalation-vsprofiling/) still retains SeImpersonatePrivilege + HighIL on **10.0.26100.1968**, so you can utilize something such as the [following](https://github.com/PN-Tester/AppxPotato) with several changes.
+
+  - Migrate/upgrade the dotnet version
+  - Manually set the ACL on the namedpipe
+  - Edit the process creation to utilize CreateProcessAsUserW
+  - Assign SeAssignPrimaryTokenPrivilege for the previous step: see why [here](https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1#L1600)
+  - Manually parse for other vulnerable methods within the [RPC server](https://googleprojectzero.blogspot.com/2019/12/calling-local-windows-rpc-servers-from.html)
 
 - **Q**: What's the purpose of the toggles?
 - **A**: The first toggle allows you to choose custom credentials. By default it's set to `admin:admin` for the account. The second toggle is for disabling various telemetry services via the `veil.bat` batch file. 
